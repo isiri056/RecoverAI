@@ -13,7 +13,7 @@ import {
 import Modal from '../components/common/Modal';
 import StatusBadge from '../components/common/StatusBadge';
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'https://recoverai-backend-lzlh.onrender.com').replace(/\/$/, '');
 
 function getPlaybookIcon(id, channel) {
   if (id === 'pb-2' || (channel && channel.toLowerCase().includes('whatsapp'))) {
