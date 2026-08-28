@@ -25,7 +25,7 @@ import {
 } from 'recharts';
 import { analyticsReportData } from '../data/mockData';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
 
 export default function Analytics({ onShowToast }) {
   const [timeRange, setTimeRange] = useState('8m');

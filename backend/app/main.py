@@ -35,8 +35,10 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+import os
+
 # Configure CORS for React frontend
-origins = [
+default_origins = [
     "http://localhost:5173",
     "http://localhost:5174",
     "http://127.0.0.1:5173",
@@ -46,9 +48,19 @@ origins = [
     "https://recoverai-frontend-efxi.onrender.com"
 ]
 
+env_origins = os.getenv("CORS_ORIGINS")
+if env_origins:
+    origins = [origin.strip() for origin in env_origins.split(",") if origin.strip()]
+    for d in default_origins:
+        if d not in origins:
+            origins.append(d)
+else:
+    origins = default_origins
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_origin_regex=r"https://.*\.onrender\.com",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

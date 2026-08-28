@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { agentStudioData } from '../data/mockData';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
 
 export default function AIAgent({ onShowToast }) {
   const [autonomousMode, setAutonomousMode] = useState(agentStudioData.autonomousMode);
