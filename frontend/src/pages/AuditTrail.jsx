@@ -18,7 +18,7 @@ import {
 import { auditTrailLedgerData } from '../data/mockData';
 import Modal from '../components/common/Modal';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function AuditTrail({ onShowToast }) {
   const [search, setSearch] = useState('');

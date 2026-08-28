@@ -11,7 +11,7 @@ import {
 import StatusBadge from '../components/common/StatusBadge';
 import Modal from '../components/common/Modal';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function Transactions({ onShowToast }) {
   const [search, setSearch] = useState('');

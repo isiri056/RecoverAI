@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { merchantSettingsData } from '../data/mockData';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function Settings({ onShowToast }) {
   const [activeTab, setActiveTab] = useState('gateways');
