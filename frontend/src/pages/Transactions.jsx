@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   ReceiptText,
   Search,
@@ -29,111 +29,68 @@ export default function Transactions({ onShowToast }) {
   // FETCH TRANSACTIONS FROM FASTAPI BACKEND
   // ============================================================
 
-  useEffect(() => {
-    const fetchTransactions = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  const fetchTransactions = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        const response = await fetch(
-          `${API_BASE_URL}/api/transactions`
-        );
+      const response = await fetch(`${API_BASE_URL}/api/transactions`);
 
-        if (!response.ok) {
-          throw new Error(
-            `Backend returned ${response.status}`
-          );
+      if (!response.ok) {
+        if (response.status >= 500) {
+          throw new Error(`Server error (${response.status}): The backend revenue engine encountered an issue.`);
+        } else if (response.status >= 400) {
+          throw new Error(`Client request error (${response.status}): Could not load transactions.`);
+        } else {
+          throw new Error(`Backend returned HTTP status ${response.status}`);
         }
-
-        const data = await response.json();
-
-        console.log('Live transactions from backend:', data);
-
-        // Backend response contains a transactions array
-        const backendTransactions = data.transactions || [];
-
-        // Convert backend format to the format expected by
-        // the existing RecoverAI UI
-        const formattedTransactions = backendTransactions.map(
-          (txn) => ({
-            id: String(txn.transaction_id ?? 'Unknown'),
-
-            customer: txn.customer_name ?? 'Unknown Customer',
-
-            email: txn.customer_email ?? 'No email',
-
-            amount: new Intl.NumberFormat('en-IN', {
-              style: 'currency',
-              currency: txn.currency || 'INR',
-              maximumFractionDigits: 0,
-            }).format(Number(txn.amount || 0)),
-
-            errorCode:
-              txn.failure_reason ||
-              txn.error_code ||
-              txn.status ||
-              'Unknown',
-
-            gateway: txn.gateway ?? 'Unknown',
-
-            rail: txn.payment_method ?? 'Unknown',
-
-            recommendedAction:
-              txn.recommended_action ||
-              'Review Transaction',
-
-            salvageProbability:
-              txn.recovery_probability !== undefined &&
-              txn.recovery_probability !== null
-                ? `${txn.recovery_probability}%`
-                : '0%',
-
-            recoveryStatus:
-              txn.recovery_status ?? 'Pending',
-
-            risk: String(
-              txn.priority ?? 'Medium'
-            ).toLowerCase(),
-
-            timestamp:
-              txn.timestamp ||
-              txn.created_at ||
-              'Recently',
-
-            lastPayload: {
-              http_status:
-                txn.http_status ||
-                txn.status ||
-                'N/A',
-
-              sub_error:
-                txn.failure_reason ||
-                txn.error_code ||
-                'No additional details',
-            },
-
-            rawPayload: txn,
-          })
-        );
-
-        setTransactions(formattedTransactions);
-      } catch (err) {
-        console.error(
-          'Failed to fetch transactions:',
-          err
-        );
-
-        setError(
-          err.message ||
-            'Unable to connect to RecoverAI backend'
-        );
-      } finally {
-        setLoading(false);
       }
-    };
 
-    fetchTransactions();
+      const data = await response.json();
+      const backendTransactions = data.transactions || [];
+
+      const formattedTransactions = backendTransactions.map((txn) => ({
+        id: String(txn.transaction_id ?? 'Unknown'),
+        customer: txn.customer_name ?? 'Unknown Customer',
+        email: txn.customer_email ?? 'No email',
+        amount: new Intl.NumberFormat('en-IN', {
+          style: 'currency',
+          currency: txn.currency || 'INR',
+          maximumFractionDigits: 0,
+        }).format(Number(txn.amount || 0)),
+        errorCode: txn.failure_reason || txn.error_code || txn.status || 'Unknown',
+        gateway: txn.gateway ?? 'Unknown',
+        rail: txn.payment_method ?? 'Unknown',
+        recommendedAction: txn.recommended_action || 'Review Transaction',
+        salvageProbability: txn.recovery_probability !== undefined && txn.recovery_probability !== null
+          ? `${txn.recovery_probability}%`
+          : '0%',
+        recoveryStatus: txn.recovery_status ?? 'Pending',
+        risk: String(txn.priority ?? 'Medium').toLowerCase(),
+        timestamp: txn.timestamp || txn.created_at || 'Recently',
+        lastPayload: {
+          http_status: txn.http_status || txn.status || 'N/A',
+          sub_error: txn.failure_reason || txn.error_code || 'No additional details',
+        },
+        rawPayload: txn,
+      }));
+
+      setTransactions(formattedTransactions);
+    } catch (err) {
+      console.error('Failed to fetch transactions:', err);
+      if (err.name === 'TypeError' && err.message.toLowerCase().includes('fetch')) {
+        setError('Network / CORS connection failed. Please ensure the backend is active and allows requests from this origin.');
+      } else {
+        setError(err.message || 'Unable to connect to RecoverAI backend');
+      }
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchTransactions();
+  }, [fetchTransactions]);
 
   // ============================================================
   // SEARCH + FILTER
@@ -322,9 +279,7 @@ export default function Transactions({ onShowToast }) {
               </p>
 
               <button
-                onClick={() =>
-                  window.location.reload()
-                }
+                onClick={fetchTransactions}
                 className="mt-4 px-4 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-xs font-semibold transition-all hover:scale-[1.02]"
               >
                 Retry Connection
