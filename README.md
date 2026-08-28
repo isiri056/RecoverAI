@@ -284,4 +284,4 @@ curl -X POST http://localhost:8000/api/agent/analyze \
 ---
 
 ## 👤 Author
-**RecoverAI Team** — Advanced Agentic Fintech Systems (2026)
+**Isiri H S**
