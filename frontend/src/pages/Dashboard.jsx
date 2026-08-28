@@ -632,23 +632,20 @@ export default function Dashboard({
             font-mono
             border
             ${
-              backendConnected
+              loading
+                ? 'text-amber-400 bg-amber-500/10 border-amber-500/30'
+                : backendConnected
                 ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30'
-                : 'text-amber-400 bg-amber-500/10 border-amber-500/30'
+                : 'text-rose-400 bg-rose-500/10 border-rose-500/30'
             }
           `}
         >
-
-          <span className="mr-1.5">
-
-            {backendConnected ? '●' : '●'}
-
-          </span>
-
-          {backendConnected
+          <span className="mr-1.5">●</span>
+          {loading
+            ? 'CONNECTING TO API...'
+            : backendConnected
             ? 'LIVE API CONNECTED'
-            : 'CONNECTING TO API...'}
-
+            : 'CONNECTION FAILED'}
         </div>
 
       </div>
