@@ -3,18 +3,32 @@ import { RotateCw, Sparkles, Zap, ShieldCheck } from 'lucide-react';
 import { merchantInfo } from '../../data/mockData';
 
 export default function DashboardHeader({ onRefresh, isRefreshing }) {
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) {
+      return 'Good morning';
+    } else if (hour >= 12 && hour < 17) {
+      return 'Good afternoon';
+    } else {
+      return 'Good evening';
+    }
+  };
+
+  const greeting = getGreeting();
+  const userName = merchantInfo.name || 'Isiri';
+
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2">
       {/* Greeting & Subtitle */}
       <div>
         <div className="flex items-center gap-2">
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary">
-            Good morning, {merchantInfo.name}.
+            {greeting}, {userName}.
           </h1>
           <span className="text-xl sm:text-2xl inline-block animate-pulse">✨</span>
         </div>
         <p className="text-sm text-text-secondary mt-1 font-normal">
-          Here's what RecoverAI found while you were away.
+          Here's your RecoverAI revenue recovery overview.
         </p>
       </div>
 
